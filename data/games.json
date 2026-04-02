@@ -1,0 +1,120 @@
+{
+  "games": [
+    {
+      "id": 1,
+      "title": "God of War: Ragnarök",
+      "developer": "Santa Monica Studio",
+      "publisher": "Sony",
+      "price": 249.90,
+      "discount": 15,
+      "rating": 4.8,
+      "reviews": 5321,
+      "releaseDate": "2022-11-09",
+      "image": "images/game1.jpg",
+      "thumbnails": [
+        "images/game1-thumb1.jpg",
+        "images/game1-thumb2.jpg",
+        "images/game1-thumb3.jpg",
+        "images/game1-thumb4.jpg"
+      ],
+      "categories": ["Ação","Aventura","Mitologia"],
+      "description": "Sequência da aclamada aventura de Kratos e Atreus pelo universo nórdico, com combates intensos e uma narrativa poderosa.",
+      "systemReq": {
+        "min": [
+          "Windows 10 (64-bit)",
+          "Intel i5-2500k ou Ryzen 3 1200",
+          "8 GB RAM",
+          "NVIDIA GTX 960 / AMD R9 290X",
+          "70 GB espaço"
+        ],
+        "rec": [
+          "Windows 10 (64-bit)",
+          "Intel i5-6600k ou Ryzen 5 2400G",
+          "16 GB RAM",
+          "NVIDIA GTX 1060 / AMD RX 570",
+          "70 GB SSD"
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "title": "Horizon Forbidden West",
+      "developer": "Guerrilla Games",
+      "publisher": "Sony",
+      "price": 149.90,
+      "discount": 0,
+      "rating": 4.6,
+      "reviews": 2240,
+      "releaseDate": "2022-02-18",
+      "image": "images/game2.jpg",
+      "thumbnails": ["images/game2.jpg"],
+      "categories": ["RPG","Mundo Aberto"],
+      "description": "Explore um mundo pós-apocalíptico repleto de máquinas e mistérios, interpretando Aloy em sua jornada.",
+      "systemReq": {}
+    },
+    {
+      "id": 3,
+      "title": "EA SPORTS FC 24",
+      "developer": "EA Vancouver",
+      "publisher": "EA",
+      "price": 99.90,
+      "discount": 20,
+      "rating": 4.2,
+      "reviews": 842,
+      "releaseDate": "2023-09-29",
+      "image": "images/game3.jpg",
+      "thumbnails": ["images/game3.jpg"],
+      "categories": ["Esportes"],
+      "description": "A mais recente experiência futebolística com gráficos aperfeiçoados e modos atualizados.",
+      "systemReq": {}
+    },
+    {
+      "id": 4,
+      "title": "Resident Evil Village",
+      "developer": "Capcom",
+      "publisher": "Capcom",
+      "price": 199.90,
+      "discount": 0,
+      "rating": 4.4,
+      "reviews": 1540,
+      "releaseDate": "2021-05-07",
+      "image": "images/game4.jpg",
+      "thumbnails": ["images/game4.jpg"],
+      "categories": ["Terror","Sobrevivência"],
+      "description": "Horror em primeira pessoa com atmosfera sombria e inimigos memoráveis.",
+      "systemReq": {}
+    },
+    {
+      "id": 5,
+      "title": "Red Dead Redemption 2",
+      "developer": "Rockstar Games",
+      "publisher": "Rockstar",
+      "price": 199.90,
+      "discount": 33,
+      "rating": 4.9,
+      "reviews": 10240,
+      "releaseDate": "2018-10-26",
+      "image": "images/game5.jpg",
+      "thumbnails": ["images/game5.jpg"],
+      "categories": ["Ação","Mundo Aberto"],
+      "description": "Um épico faroeste com narrativa profunda, mundo vivo e missões envolventes.",
+      "systemReq": {}
+    },
+    {
+      "id": 6,
+      "title": "Assassin's Creed Valhalla",
+      "developer": "Ubisoft",
+      "publisher": "Ubisoft",
+      "price": 199.90,
+      "discount": 0,
+      "rating": 4.3,
+      "reviews": 4100,
+      "releaseDate": "2020-11-10",
+      "image": "images/game6.jpg",
+      "thumbnails": ["images/game6.jpg"],
+      "categories": ["Ação","RPG"],
+      "description": "Viva como um guerreiro viking em invasões, alianças e batalhas na Inglaterra medieval.",
+      "systemReq": {}
+    }
+  ]
+}
