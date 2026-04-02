@@ -8,6 +8,7 @@ app = Flask(__name__, static_folder='.', static_url_path='')
 CORS(app)
 
 DATA_PATH = os.path.join(os.path.dirname(__file__), 'data', 'games.json')
+CACHE_PATH = os.path.join(os.path.dirname(__file__), 'data', 'rawg_cache.json')
 
 
 def load_games():
@@ -48,6 +49,18 @@ def api_rawg_search():
         return jsonify({'error': 'RAWG_API_KEY not set', 'results': []}), 400
     if not q:
         return jsonify({'results': []})
+    # checar cache simples em arquivo
+    q_key = q.lower()
+    cache = {}
+    try:
+        if os.path.isfile(CACHE_PATH):
+            with open(CACHE_PATH, 'r', encoding='utf-8') as cf:
+                cache = json.load(cf) or {}
+    except Exception:
+        cache = {}
+
+    if q_key in cache:
+        return jsonify({'results': cache[q_key]})
 
     params = {'key': api_key, 'search': q, 'page_size': 10}
     try:
@@ -66,6 +79,15 @@ def api_rawg_search():
             'rating': item.get('rating'),
             'background_image': item.get('background_image'),
         })
+
+    # salvar no cache de arquivo (silencioso em caso de falha)
+    try:
+        cache[q_key] = simplified
+        with open(CACHE_PATH, 'w', encoding='utf-8') as cf:
+            json.dump(cache, cf, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
     return jsonify({'results': simplified})
 
 

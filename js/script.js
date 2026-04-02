@@ -216,6 +216,17 @@ function populateGameDetail(game) {
       if (currentPriceEl) currentPriceEl.textContent = game.price ? `R$ ${game.price.toFixed(2).replace('.', ',')}` : '';
     }
   }
+  // botão "Adicionar ao Carrinho" dentro do modal de detalhe
+  const addBtn = gameDetail.querySelector('.purchase-buttons .btn.btn-outline');
+  if (addBtn) {
+    addBtn.onclick = (ev) => {
+      ev.preventDefault();
+      if (window.gameAPI) {
+        window.gameAPI.addToCart(game.id, 1);
+        updateCartUI();
+      }
+    };
+  }
 }
 
 // Delegação de clique para abrir detalhes
@@ -233,6 +244,98 @@ document.addEventListener('click', (e) => {
 >>>>>>> 52daff4 (Inicio de Aplicação de API)
   }
 });
+
+// --- Carrinho: UI mínima e funções de atualização
+function createCartModalIfNeeded() {
+  if (document.querySelector('.cart-modal')) return;
+  const modal = document.createElement('div');
+  modal.className = 'cart-modal';
+  modal.style.position = 'fixed';
+  modal.style.right = '20px';
+  modal.style.top = '70px';
+  modal.style.width = '360px';
+  modal.style.maxHeight = '80vh';
+  modal.style.overflow = 'auto';
+  modal.style.background = 'var(--surface, #0f1724)';
+  modal.style.color = 'var(--text, #fff)';
+  modal.style.boxShadow = '0 8px 24px rgba(0,0,0,0.5)';
+  modal.style.borderRadius = '8px';
+  modal.style.padding = '12px';
+  modal.style.zIndex = '9999';
+  modal.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <strong>Carrinho</strong>
+      <button class="close-cart" style="background:none;border:none;color:inherit;font-size:20px;cursor:pointer">×</button>
+    </div>
+    <div class="cart-items"></div>
+    <div class="cart-footer" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
+      <div class="cart-total" style="font-weight:600"></div>
+      <button class="btn btn-primary checkout">Finalizar</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.querySelector('.close-cart').addEventListener('click', () => modal.remove());
+  modal.querySelector('.checkout').addEventListener('click', () => alert('Checkout não implementado')); 
+}
+
+function updateCartUI() {
+  if (!window.gameAPI) return;
+  const countSpan = document.querySelector('.cart a span');
+  if (countSpan) countSpan.textContent = window.gameAPI.getCartCount();
+
+  createCartModalIfNeeded();
+  const modal = document.querySelector('.cart-modal');
+  if (!modal) return;
+  const itemsContainer = modal.querySelector('.cart-items');
+  itemsContainer.innerHTML = '';
+  const items = window.gameAPI.getCartItems();
+  if (!items.length) itemsContainer.innerHTML = '<div>Seu carrinho está vazio.</div>';
+  items.forEach(it => {
+    const div = document.createElement('div');
+    div.className = 'cart-item';
+    div.style.display = 'flex';
+    div.style.justifyContent = 'space-between';
+    div.style.marginBottom = '8px';
+    div.innerHTML = `
+      <div style="flex:1">
+        <div style="font-weight:600">${it.game.title}</div>
+        <div style="font-size:13px;color:var(--muted,#9aa)">Qtd: ${it.qty}</div>
+      </div>
+      <div style="text-align:right;min-width:90px">
+        <div>R$ ${( (it.game.price||0) * it.qty ).toFixed(2).replace('.',',')}</div>
+        <button class="remove-item btn" data-id="${it.game.id}" style="margin-top:6px">Remover</button>
+      </div>
+    `;
+    itemsContainer.appendChild(div);
+  });
+  const totalEl = modal.querySelector('.cart-total');
+  if (totalEl) totalEl.textContent = `Total: R$ ${window.gameAPI.getCartTotal().toFixed(2).replace('.',',')}`;
+
+  // delegação para remover item
+  itemsContainer.querySelectorAll('.remove-item').forEach(btn => {
+    btn.addEventListener('click', (ev) => {
+      const id = btn.getAttribute('data-id');
+      window.gameAPI.removeFromCart(id);
+      updateCartUI();
+    });
+  });
+}
+
+// abrir carrinho ao clicar no ícone
+const headerCartLink = document.querySelector('.cart a');
+if (headerCartLink) {
+  headerCartLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    createCartModalIfNeeded();
+    const modal = document.querySelector('.cart-modal');
+    if (modal) {
+      // simples toggle
+      if (modal.style.display === 'none' || getComputedStyle(modal).display === 'none') modal.style.display = 'block';
+      else modal.style.display = 'block';
+      updateCartUI();
+    }
+  });
+}
 
 function openGameDetail() {
   gameDetail.style.display = 'block';
@@ -339,7 +442,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!window.gameAPI) return;
   try {
     const games = await window.gameAPI.loadGames();
-    if (games && games.length) renderGames(games);
+    if (games && games.length) {
+      renderGames(games);
+      updateCartUI();
+      try {
+        await window.gameAPI.enrichMissingImages();
+        renderGames(window.gameAPI.games);
+      } catch (e) {
+        // ignore enrichment failures
+      }
+    }
 
     const searchInput = document.querySelector('.search-box input');
     if (searchInput) {

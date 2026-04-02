@@ -99,19 +99,36 @@ class GameAPI {
   }
 
   // tenta enriquecer imagens dos jogos que não têm capa local
+  // Se RAWG não estiver disponível (sem chave), usa thumbnails locais ou placeholder (picsum)
   async enrichMissingImages(limit = 6) {
     const missing = this.games.filter(g => !g.image || g.image === '' ).slice(0, limit);
     for (const g of missing) {
+      let setImg = false;
       try {
         const results = await this.rawgSearch(g.title || '');
         if (results && results.length) {
           const first = results[0];
           if (first.background_image) {
             g.image = first.background_image;
+            setImg = true;
           }
         }
       } catch (e) {
         // ignore
+      }
+
+      if (!setImg) {
+        // usar thumbnail local se existir
+        if (g.thumbnails && g.thumbnails.length) {
+          g.image = g.thumbnails[0];
+          setImg = true;
+        }
+      }
+
+      if (!setImg) {
+        // placeholder sem necessidade de chave: picsum.photos com seed baseado no título/id
+        const seed = encodeURIComponent(((g.title || g.id || 'game') + '').replace(/\s+/g, '-').toLowerCase());
+        g.image = `https://picsum.photos/seed/${seed}/600/360`;
       }
     }
   }
