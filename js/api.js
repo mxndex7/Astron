@@ -1,6 +1,9 @@
 class GameAPI {
   constructor() {
     this.games = [];
+    this.cart = [];
+    this.cartKey = 'astron_cart_v1';
+    this.loadCart();
   }
 
   async loadGames() {
@@ -30,6 +33,60 @@ class GameAPI {
     return this.games.find(g => Number(g.id) === Number(id));
   }
 
+  loadCart() {
+    try {
+      const raw = localStorage.getItem(this.cartKey);
+      this.cart = raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      this.cart = [];
+    }
+  }
+
+  saveCart() {
+    try {
+      localStorage.setItem(this.cartKey, JSON.stringify(this.cart));
+    } catch (e) {
+      console.error('Falha ao salvar carrinho', e);
+    }
+  }
+
+  addToCart(gameId, qty = 1) {
+    const id = Number(gameId);
+    const existing = this.cart.find(i => Number(i.id) === id);
+    if (existing) {
+      existing.qty = Math.max(1, existing.qty + qty);
+    } else {
+      this.cart.push({ id, qty });
+    }
+    this.saveCart();
+  }
+
+  removeFromCart(gameId) {
+    const id = Number(gameId);
+    this.cart = this.cart.filter(i => Number(i.id) !== id);
+    this.saveCart();
+  }
+
+  clearCart() {
+    this.cart = [];
+    this.saveCart();
+  }
+
+  getCartItems() {
+    return this.cart.map(item => {
+      const game = this.getGameById(item.id) || { id: item.id, title: 'Desconhecido', price: 0 };
+      return { game, qty: item.qty };
+    });
+  }
+
+  getCartCount() {
+    return this.cart.reduce((s, i) => s + (i.qty || 0), 0);
+  }
+
+  getCartTotal() {
+    return this.getCartItems().reduce((sum, it) => sum + ((it.game.price || 0) * it.qty), 0);
+  }
+
   async rawgSearch(q) {
     try {
       const res = await fetch('/api/rawg?q=' + encodeURIComponent(q));
@@ -38,6 +95,24 @@ class GameAPI {
       return data.results || [];
     } catch (err) {
       return [];
+    }
+  }
+
+  // tenta enriquecer imagens dos jogos que não têm capa local
+  async enrichMissingImages(limit = 6) {
+    const missing = this.games.filter(g => !g.image || g.image === '' ).slice(0, limit);
+    for (const g of missing) {
+      try {
+        const results = await this.rawgSearch(g.title || '');
+        if (results && results.length) {
+          const first = results[0];
+          if (first.background_image) {
+            g.image = first.background_image;
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
     }
   }
 }
